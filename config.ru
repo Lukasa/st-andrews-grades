@@ -1,3 +1,3 @@
-require_relative './masquerade'
+require './masquerade'
 run Sinatra::Application
 
