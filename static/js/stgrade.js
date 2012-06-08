@@ -19,7 +19,7 @@ function removeRow(childID, parentID) {
 
 function validateRow(grade, credits) {
     if (isNaN(grade) || (grade < 0) || (grade > 20) ||
-        isNaN(credits) || (credits < 0) || (credits > 120))
+        isNaN(credits) || (credits < 0) || (credits > 120) || !isInt(credits))
     {
         return false;
     }
