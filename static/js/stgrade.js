@@ -1,20 +1,177 @@
 var modules = 0;
 
-function addNewRowOfControls(formID) {
-    var newrow = document.createElement('div');
-    modules++;
-    newrow.id = 'module-row' + modules;
-    newrow.className = 'input-row';
-    newrow.innerHTML = '<input type="text" name="grade" placeholder="Module Grade">'     +
-                       '<input type="text" name="credits" placeholder="Module Credits">' +
-                       '<input type="button" class="button-1 button-close" name="close" value="&times;" onClick="removeRow(\'' + newrow.id + '\', \'' + formID + '\')">';
-    document.getElementById(formID).appendChild(newrow);
+// Register our jQuery handlers.
+$(document).ready(function(){
+    $("#start-button").click(animateRemoveText);
+});
+
+function animateRemoveText() {
+    // Fade the text out.
+    var $explanation = $(".explanation");
+    $explanation.fadeOut(400, function(){
+        $explanation.remove();
+    });
+
+    // Resize the div.
+    $(".center-window").animate({ height: '250px'}, 500, function() {
+        animateAddForm();
+    });
 }
 
-function removeRow(childID, parentID) {
-    var child = document.getElementById(childID);
-    var parent = document.getElementById(parentID);
-    parent.removeChild(child);
+function animateAddForm() {
+    // Create the new div for the calculator form.
+    $('<div/>', {
+        id: "rows",
+        "class": "calculator-form"
+    }).appendTo(".body");
+
+    // Add a row of buttons to it.
+    var row_name = animateAddInputRow(true, false);
+
+    // Finally, add two snazzy new buttons.
+    $('<div/>',{
+        "class": 'buttons'
+    }).appendTo('.body');
+
+    $('<input/>', {
+        id: 'new_row_button',
+        "class": 'button-1',
+        type: 'button',
+        name: 'newrow',
+        value: 'New Module'
+    }).hide().appendTo(".buttons").fadeIn(400).click(function() {
+        animateAddInputRow(true, true);
+    });
+
+    $('<input/>', {
+        id: 'calculate_button',
+        "class": 'button-1 button-2',
+        type: 'button',
+        name: 'calculate',
+        value: 'CALCULATE!'
+    }).hide().click(calculate).appendTo('.buttons').fadeIn(400);
+}
+
+function animateAddInputRow(animate, increase_height) {
+    // Increment the modules count.
+    modules++;
+
+    var module_id = "module-row" + modules;
+
+    // Add a container div for the row.
+    var $new_div = $('<div/>', {
+        id: module_id,
+        "class": "input-row"
+    }).hide().appendTo(".calculator-form");
+
+    // Create the row.
+    $('<input/>', {
+        type: 'text',
+        name: 'grade',
+        placeholder: 'Module Grade'
+    }).appendTo('#' + module_id);
+
+    $('<input/>', {
+        type: 'text',
+        name: 'credits',
+        placeholder: 'Module Credits'
+    }).appendTo('#' + module_id);
+
+    $('<input/>', {
+        type: 'button',
+        "class": 'button-1 button-close',
+        name: 'close',
+        value: 'x'
+    }).click(function() {
+        animateDeleteRow($(this));
+    }).appendTo('#' + module_id);
+
+    if (increase_height && animate) {
+        $new_div.slideDown(400);
+        changeHeightOfCenterWindow(45);
+    } else if (animate) {
+        $new_div.fadeIn(400);
+    } else {
+        $new_div.show();
+    }
+}
+
+function animateDeleteRow(source) {
+    source.parent().slideUp(400, function() {
+        $(this).remove();
+    });
+    changeHeightOfCenterWindow(-45);
+}
+
+function changeHeightOfCenterWindow(heightChange) {
+    var current_height = $('.center-window').height();
+    $('.center-window').animate({
+        height: current_height + heightChange + 'px'
+    }, 400);
+}
+
+function calculate() {
+    // Multiple stages here. First, go over each row. Confirm that it's got
+    // valid data in it. If they all do, then determine the credit-weighted
+    // mean and median. Work out what the grade is. Display to screen.
+    var $container = $('#rows');
+    var credits_and_grades = [];
+    var success = true;
+
+    $container.children('div').each(function() {
+        var grade = $(this).children('input[name=grade]').val();
+        var credits = $(this).children('input[name=credits]').val();
+
+        grade = parseInt(grade, 10);
+        credits = parseInt(credits, 10);
+
+        if (validateRow(grade, credits)) {
+            credits_and_grades.push({grade: grade, credits: credits});
+            $(this).children('input').removeClass('failed');
+        } else {
+            success = false;
+            $(this).children('input').addClass('failed');
+        }
+    });
+
+    if (success) {
+        displayResult(CWM(credits_and_grades), CWMedian(credits_and_grades));
+    }
+}
+
+function displayResult(mean, median) {
+    var resultString = classificationFromGrades(mean, median);
+    var outString = '<p>With a credit-weighted mean of ' +
+                    mean.toString() +
+                    ' and a credit-weighted median of ' +
+                    median.toString() +
+                    ', you will graduate with ' +
+                    resultString + '.</p>';
+
+    // Add the result text to the body.
+    var newDiv = maybeCreateResultsDiv();
+
+    // Clear out any text that might be there, and then add more.
+    var $results = $('#results');
+    $results.empty();
+    $results.append(outString);
+
+    // If the div is new, slide it in and reveal it.
+    if (newDiv) {
+        $results.slideDown(400);
+        changeHeightOfCenterWindow(90);
+    }
+}
+
+function maybeCreateResultsDiv() {
+    var count = $('.body').children('#results');
+
+    if (count.length === 0) {
+        return $('<div/>', {
+                 "class": 'results',
+                 id: 'results'
+        }).hide().appendTo('.body');
+    } else return null;
 }
 
 function validateRow(grade, credits) {
@@ -23,88 +180,20 @@ function validateRow(grade, credits) {
     {
         return false;
     }
-    else return true; 
-}
-
-function updateRowData(rowID, color) {
-    var controls = document.getElementById(rowID).getElementsByTagName('input');
-    
-    for (var i = 0; i < controls.length; i++) {
-        if (controls[i].name != 'close'){
-            controls[i].style.background = color;
-        }
-    }
-}
-
-function updateRowValidData(rowID) {
-    updateRowData(rowID, 'white');
-}
-
-function updateRowInvalidData(rowID) {
-    updateRowData(rowID, 'red');
-}
-
-function getGradesAndCredits(rows) {
-    var results = new Array();
-    var valid_counter = 0;
-    
-    for (var i = 0; i < rows.length; i++)
-    {
-        if (rows[i].nodeName == '#text') continue;
-        var data = new Object();
-        var row = rows[i].getElementsByTagName('input');
-        data.grade = parseFloat(row[0].value, 10);
-        data.credits = parseFloat(row[1].value, 10);
-        data.id = rows[i].id;
-        results[valid_counter] = data;
-        valid_counter++;
-    }
-    
-    return results;
-}
-
-function validateForm(form) {
-    if (form.hasChildNodes())
-    {
-        // Should be a list of divs.
-        var children = form.childNodes;
-        var valid = true;
-        
-        var grades_and_credits = getGradesAndCredits(children);
-        
-        for (var i = 0; i < grades_and_credits.length; i++)
-        {
-            if (!validateRow(grades_and_credits[i].grade, grades_and_credits[i].credits))
-            {
-                valid = false;
-                updateRowInvalidData(grades_and_credits[i].id);
-            }
-            else
-            {
-                updateRowValidData(grades_and_credits[i].id);
-            }
-        }
-        
-        if (valid) return true;
-        else return false;
-    }
-    else
-    {
-        return false;
-    }
+    else return true;
 }
 
 function CWM(grades_and_credits) {
     // Calculate and return a Credit-Weighted Mean.
     var sum = 0;
     var credit_total = 0;
-    
+
     for (var i = 0; i < grades_and_credits.length; i++)
     {
         sum += (grades_and_credits[i].grade * grades_and_credits[i].credits);
         credit_total += grades_and_credits[i].credits;
     }
-    
+
     return (sum / credit_total);
 }
 
@@ -116,30 +205,30 @@ function CWMedian(grades_and_credits) {
     // *credits*. For example, if you've taken 120 credits of modules, arrange them
     // in grade order and then count up 60.5 credits. This value is the credit-weighted
     // median.
-    
+
     // Begin by sorting the array.
-    grades_and_credits.sort(function(a, b){return (a.grade - b.grade)});
-    
+    grades_and_credits.sort(function(a, b){return (a.grade - b.grade);});
+
     // Calculate the number of credits taken.
     var credits = 0;
-    
+
     for (var i = 0; i < grades_and_credits.length; i++)
     {
         credits += grades_and_credits[i].credits;
     }
-    
+
     // The middle credit number is (credit_total + 1)/2.
     var credit_total = (credits + 1)/2;
-     
+
     if (isInt(credit_total))
     {
         // If the credit total is an integer, return the grade of the module that integer
         // falls in.
         credits = 0;
-        for (var i = 0; i < grades_and_credits.length; i++)
+        for (i = 0; i < grades_and_credits.length; i++)
         {
             credits += grades_and_credits[i].credits;
-            
+
             if (credits >= credit_total) return grades_and_credits[i].grade;
         }
     }
@@ -148,11 +237,11 @@ function CWMedian(grades_and_credits) {
         // Trickier. 9 times out of 10 the half point will fall in a module, but it might
         // fall between modules. We need to check for that edge case.
         credits = 0;
-        
-        for (var i = 0; i < grades_and_credits.length; i++)
+
+        for (i = 0; i < grades_and_credits.length; i++)
         {
             credits += grades_and_credits[i].credits;
-            
+
             // This has fallen between modules.
             if (((credit_total - 0.5) == credits) && ((credit_total + 0.5) > credits))
             {
@@ -167,7 +256,7 @@ function CWMedian(grades_and_credits) {
 }
 
 function isInt(num) {
-    if((parseFloat(num) == parseInt(num)) && !isNaN(num))
+    if((parseFloat(num) == parseInt(num, 10)) && !isNaN(num))
     {
         return true;
     } else return false;
@@ -185,24 +274,4 @@ function classificationFromGrades(mean, median) {
     else if (mean >= 7.5) return 'Third Class Honours';
     else if ((mean >= 7) && (median >= 7.5)) return 'Third Class Honours';
     else return 'a degree "Not of Honours Standard"';
-}
-
-function processForm(formID) {
-    var form = document.getElementById(formID);
-    var valid = validateForm(form);
-    
-    if (valid)
-    {
-        var grades_and_credits = getGradesAndCredits(form.childNodes);
-        var mean = CWM(grades_and_credits);
-        var median = CWMedian(grades_and_credits);
-        var degree_class = classificationFromGrades(mean, median);
-        var results_div = document.getElementById('result');
-        results_div.innerHTML = '<h3>Result</h3>' +
-                                '<p>Your Credit-Weighted Mean is ' + mean.toFixed(2) +
-                                ', and your Credit-Weighted Median is ' + median.toFixed(2) +
-                                '. </br> This means you will graduate with ' + degree_class +
-                                '.';
-        results_div.style.visibility = 'visible';
-    }
 }

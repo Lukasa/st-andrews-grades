@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="description" content="Quickly and easily calculate the degree classification you can expect to get based on your grades!">
     <meta name="author" content="Cory Benfield">
-    <link href="https://s3-eu-west-1.amazonaws.com/sta-calc/css/style_min_v1.css" rel="stylesheet">
+    <link href="https://s3-eu-west-1.amazonaws.com/sta-calc/css/style_min_v2.css" rel="stylesheet">
 
     <!-- Icons -->
     <link rel="shortcut icon" href="https://s3-eu-west-1.amazonaws.com/sta-calc/ico/favicon_2.ico">
@@ -17,7 +17,8 @@
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <script src="https://s3-eu-west-1.amazonaws.com/sta-calc/js/stagrade_min_v2.js" language="Javascript" type="text/Javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://s3-eu-west-1.amazonaws.com/sta-calc/js/stagrade_min_v3.js" language="Javascript" type="text/Javascript"></script>
     <!-- Google Analytics -->
     <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -34,45 +35,16 @@
 <body class="gradient">
     <div class="center-window">
         <header>
-            <h1>University of St Andrews<br/>Degree Calculator</h1>
+            <h1>University of St Andrews Degree Calculator</h1>
         </header>
-        
+
         <div class="body">
             <div class="explanation">
-                <h2>So what's this all about anyway?</h2>
                 <p>Confused by the University of St Andrews' baroque and obtuse grading scheme? Just want to know what degree classification you're going to get? Want to know what you need in your dissertation to scrape that 2-2?</p>
-                <p>Totally understandable. You aren't alone. This handy calculator will help. Just put in your module grades in the boxes on the left and the number of credits they're worth in the boxes on the right. Then hit the big ol' <strong>CALCULATE!</strong> button, and you'll find your answer!</p>
-            </div>
-            
-            <div class="calculator-form" id="rows">
-            </div>
-            
-            <div class="inputs">
-                <p><input class="button-1" type="button" name="new-module" value="Add new module..." onClick="addNewRowOfControls('rows')"></p>
-                <p><input class="button-1 button-2" type="button" name="submit" value="CALCULATE!" onClick="processForm('rows')"></p>
-            </div>
-            
-            <div class="result" id="result">
-            </div>
-            
-            <div class="explanation">
-                <h2>FAQs</h2>
-                <p>Confused? Maybe some of the following information will help.</p>
-                <h4>What does this thing do?</h4>
-                <p>The University of St Andrews uses a combination of your average module grade and your median module grade to determine what degree classification you'll get. Unfortunately, this is boring and time-consuming to calculate. This website was built to make it easier for you to do this yourself.</p>
-                <h4>I haven't finished my degree yet. Is this still suitable for me?</h4>
-                <p>Sure! If you put the modules you have taken so far into the calculator, you can see what degree classification you'd get if you continued getting the same grades. If you're really adventurous, you can put in the modules you've yet to take, and see how low your grades can be before you fail!</p>
-                <h4>What system does this website use for calculating your classification?</h4>
-                <p>In 2010, the University of St Andrews introduced a new degree classification system for use with all students. To the best of my knowledge, this has not changed since then. You can find the system <a href="http://www.st-andrews.ac.uk/staff/policy/tlac/examinations/classification/">here</a>. If you think this system has been updated since then, <a href="mailto:cory@lukasa.co.uk?subject=Degree%20Calculator">send me an email</a> and let me know.</p>
-                <h4>Help! It doesn't work!</h4>
-                <p>This website uses liberal quantities of HTML5, CSS3 and Javascript to do what it does. If you're using this website in an old web browser, particularly Internet Explorer, you're gonna have a bad time. If you have disabled Javascript, this website will flat-out fail to work. I recommend you provide an exception to your Javascript rules. If you don't trust me, you can find a copy of the Javascript that runs on this page on <a href="https://github.com/Lukasa/st-andrews-grades/blob/master/static/js/stgrade.js">GitHub</a>.</p>
-                <h4>Are you stealing all the grade information that I put on this page?</h4>
-                <p>Absolutely not. All the calculation and data input is managed in your web browser, and is never sent across the internet. You download this web page from my server, and then you never communicate with me again.</p>
-                <p>With that said, I should clarify some privacy information. My web hosting is managed by <a href="http://www.heroku.com/">Heroku</a>. Heroku log web requests, including IP addresses, and these logs are available to me. Heroku uses these logs to aggregate non-personal information. Static files for this site are served from <a href="http://aws.amazon.com/s3/">Amazon S3</a>, and Amazon will also log IP addresses. They use this information much like Heroku does. Finally, I use Google Analytics to keep track of the load my server is under. This provides me aggregated, non-personal information, and cannot be used to track anyone. None of these services or myself have access to any personally identifying information about you.</p>
-                <h4>Who are you?</h4>
-                <p>My name is Cory, and I was a student of the University of St Andrews. I wrote this calculator to replace the Excel spreadsheet that was previously being passed around the student body to make this calculation. Nowadays I write software for a living. You can find me on <a href="http://lukasa.co.uk/">my blog</a>.</p>
-                <h4>Do you have any boring legal stuff to say?</h4>
-                <p>Actually, yes. I am not a representative of the University of St Andrews. This website does not represent the University of St Andrews. Any results provided by this website are not guaranteed to correlate with your actual degree classification as awarded by the University. I cannot be held responsible for your actions based on the usage of this degree calculator. The University has provided me with no remuneration for this calculator. This calculator is hosted and maintained on my own time, at my own expense. At any time I may take this calculator down without warning.</p>
+                <p>Totally understandable. You aren't alone. This handy calculator will help. Just put in your module grades and the number of credits they're worth in the boxes. Then hit the big ol' <strong>CALCULATE!</strong> button, and you'll find your answer! Got any questions? Check the <a href="http://grades.lukasa.co.uk/faq">FAQ</a>.</p>
+                <div class="buttons">
+                    <input id="start-button" class="button-1" type="button" name="start" value="Let's Go!">
+                </div>
             </div>
         </div>
     </div>
