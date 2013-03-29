@@ -3,7 +3,35 @@ var modules = 0;
 // Register our jQuery handlers.
 $(document).ready(function(){
     $("#start-button").click(animateRemoveText);
+    $(window).resize(windowResize);
 });
+
+function windowResize() {
+    // If the window is resized, make sure we adjust the central div's display
+    // properties.
+    var new_window_height = $(window).height();
+    var content_height = $('.center-window').height();
+
+    if (content_height) {
+        if (new_window_height <= content_height) {
+            $('.center-window').css({
+                position: 'static',
+                top: 'auto',
+                left: 'auto',
+                right: 'auto',
+                bottom: 'auto'
+            });
+        } else if (new_window_height > content_height) {
+            $('.center-window').css({
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            });
+        }
+    }
+}
 
 function animateRemoveText() {
     // Fade the text out.
@@ -105,9 +133,43 @@ function animateDeleteRow(source) {
 
 function changeHeightOfCenterWindow(heightChange) {
     var current_height = $('.center-window').height();
+    var new_height = current_height + heightChange;
+    var cb = function(obj) {};
+
+    // Check whether changing the size of the div will make it go from being
+    // smaller than the viewport to larger than the viewport. Also check
+    // whether we'll go the other way.
+    if (($(window).height() <= new_height) &&
+        ($(window).height() > current_height)) {
+        // We're going to expand past the viewport. Set a callback to remove
+        // some unhelpful CSS.
+        cb = function(obj) {
+            obj.css({
+                position: 'static',
+                top: 'auto',
+                left: 'auto',
+                right: 'auto',
+                bottom: 'auto'
+            });
+        };
+    } else if (($(window).height() > new_height) &&
+               ($(window).height() <= current_height)) {
+        // We're going to shrink past the viewport. Set a callback to remove
+        // some unhelpful CSS.
+        cb = function(obj) {
+            obj.css({
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            });
+        };
+    }
+
     $('.center-window').animate({
         height: current_height + heightChange + 'px'
-    }, 400);
+    }, 400, cb($('.center-window')));
 }
 
 function calculate() {
