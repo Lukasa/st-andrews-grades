@@ -184,7 +184,7 @@ function calculate() {
         var grade = $(this).children('input[name=grade]').val();
         var credits = $(this).children('input[name=credits]').val();
 
-        grade = parseInt(grade, 10);
+        grade = parseFloat(grade, 10);
         credits = parseInt(credits, 10);
 
         if (validateRow(grade, credits)) {
